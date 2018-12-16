@@ -77,15 +77,21 @@ public class MainPageController implements Initializable {
          */
         public void run() {
             while (true) {
-                if (gateway.getCommentCount() > N) {
-                    String newComment = gateway.getComment(N);
-                    Platform.runLater(() -> textArea.appendText(newComment + "\n"));
-                    N++;
-                } else {
-                    try {
-                        Thread.sleep(250);
-                    } catch (InterruptedException ex) {
+                try {
+                    if (gateway.getCommentCount() > N) {
+                        String newComment = gateway.getComment(N);
+                        Platform.runLater(() -> textArea.appendText(newComment + "\n"));
+                        N++;
+                    } else {
+                        try {
+                            Thread.sleep(250);
+                        } catch (InterruptedException ex) {
+                        }
                     }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (ClassNotFoundException e) {
+                    e.printStackTrace();
                 }
             }
         }

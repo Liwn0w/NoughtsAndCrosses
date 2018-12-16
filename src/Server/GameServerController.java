@@ -1,5 +1,6 @@
 package Server;
 
+import Model.Player;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -17,11 +18,14 @@ public class GameServerController implements Initializable {
 
     private int playerNo = 0;
     private Chat chat;
+    private ServerPlayerList playerList;
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
 
         chat = new Chat();
+        playerList = new ServerPlayerList();
+
         new Thread(() -> {
             try {
                 ServerSocket serverSocket = new ServerSocket(8000);
@@ -33,7 +37,7 @@ public class GameServerController implements Initializable {
                         chatArea.appendText("Started thread for player "+ playerNo + "\n");
                     });
 
-                    new Thread(new HandleAClient(socket, chat, chatArea)).start();
+                    new Thread(new HandleAClient(socket, chat,playerList)).start();
 
                 }
             } catch (IOException e) {
@@ -45,50 +49,70 @@ public class GameServerController implements Initializable {
     class HandleAClient implements Runnable, ChatConstants {
         private Socket socket; // A connected socket
         private Chat chat; // Reference to shared chat
-        private TextArea chatArea;
-        private String userName;
+        private Player player;
+        private ServerPlayerList playerList; //reference to shared playerList
 
-        public HandleAClient(Socket socket, Chat chat, TextArea chatArea) {
+        public HandleAClient(Socket socket, Chat chat, ServerPlayerList playerList) {
             this.socket = socket;
             this.chat = chat;
-            this.chatArea = chatArea;
+            this.playerList = playerList;
         }
 
         public void run() {
             try {
                 // Create reading and writing streams
-                BufferedReader inputFromClient = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                PrintWriter outputToClient = new PrintWriter(socket.getOutputStream());
+                //BufferedReader inputFromClient = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                //PrintWriter outputToClient = new PrintWriter(socket.getOutputStream());
+
+                //create object streams
+                ObjectInputStream inputFromClient = new ObjectInputStream(socket.getInputStream());
+                ObjectOutputStream outputToClient = new ObjectOutputStream(socket.getOutputStream());
 
                 // Continuously serve the client
                 while (true) {
                     // Receive request code from the client
-                    int request = Integer.parseInt(inputFromClient.readLine());
+                    int request = Integer.parseUnsignedInt((String) inputFromClient.readObject());
+                    System.out.println(request);
                     // Process request
                     switch (request) {
                         case SEND_USERNAME: {
-                            userName = inputFromClient.readLine();
+                            player = (Player) inputFromClient.readObject();
+                            playerList.addPlayer(player);
+
+                            for(Player p: playerList.getPlayerList()) {
+                                System.out.println(p.getUsername());
+                            }
                             break;
                         }
                         case SEND_COMMENT: {
-                            String comment = inputFromClient.readLine();
-                            chat.addComment(userName + "> " + comment);
+                            String comment = (String) inputFromClient.readObject();
+                            System.out.println("comment: " +comment);
+                            chat.addComment(player.getUsername() + "> " + comment);
                             break;
                         }
                         case GET_COMMENT_COUNT: {
-                            outputToClient.println(chat.getSize());
+                            outputToClient.writeObject(Integer.toString(chat.getSize()));
+                            System.out.println("Get Comment count: "+ chat.getSize());
                             outputToClient.flush();
                             break;
                         }
                         case GET_COMMENT: {
-                            int n = Integer.parseInt(inputFromClient.readLine());
-                            outputToClient.println(chat.getComment(n));
+                            int n = Integer.parseUnsignedInt( (String) inputFromClient.readObject());
+                            outputToClient.writeObject(chat.getComment(n));
+                            System.out.println("Get comment at n: " + chat.getComment(n));
+                            outputToClient.flush();
+                        }
+
+                        case GET_PLAYERS: {
+                            outputToClient.writeObject(playerList);
                             outputToClient.flush();
                         }
                     }
                 }
             } catch (IOException ex) {
-                Platform.runLater(() -> chatArea.appendText("Exception in client thread: " + ex.toString() + "\n"));
+                ex.printStackTrace();
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
             }
         }
     }

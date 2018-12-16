@@ -19,7 +19,7 @@ public class GameServer extends Application {
         Scene scene = new Scene(root);
         
         stage.setScene(scene);
-        stage.setTitle("Chat Server");
+        stage.setTitle("GameServer");
         // Closing the main window does is not sufficient to completely kill
         // the application, since we are going to be running a server thread.
         // Calling System.exit() should do the trick.
