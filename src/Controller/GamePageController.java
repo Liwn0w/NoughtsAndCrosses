@@ -3,9 +3,6 @@ package Controller;
 import Model.Gateway;
 import Model.Player;
 import Model.Symbol;
-import Server.ServerPlayerList;
-import com.sun.xml.internal.ws.policy.privateutil.PolicyUtils;
-import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -20,7 +17,6 @@ import javafx.scene.paint.Color;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
 
 import static javafx.scene.text.TextAlignment.CENTER;
 
@@ -37,10 +33,20 @@ public class GamePageController {
     TextField chatField;
 
     private Gateway gateway;
+    private ArrayList<Player> players;
 
     public void initialize() {
         gateway = Gateway.getInstance();
         gateway.setTextArea(chatArea);
+        gateway.setPlayer2(player2);
+        players = new ArrayList<>();
+        try {
+            players = updatePlayers();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
 
         chatButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
@@ -54,47 +60,25 @@ public class GamePageController {
         });
 
         //Get usernames after chat is successfully implemented
-        try {
-
-            List<Player> players = getPlayers().getPlayerList();
             player1.setText(players.get(0).getUsername());
-            if(getPlayers().getPlayerList().size()<2) {
+            if(players.size()<2) {
                 player2.setText("Waiting...");
             } else {
                 player2.setText(players.get(1).getUsername());
             }
-
-            /*Platform.runLater(()->{
-                while(true) {
-                    try {
-                        if(getPlayers().getPlayerList().size()>=2) {
-                            player2.setText(getPlayers().getPlayerList().get(1).getUsername());
-                            break;
-                        }
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    } catch (ClassNotFoundException e) {
-                        e.printStackTrace();
-                    }
-
-                }
-            });*/
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
 
         for (int i = 0 ; i < 9 ; i++) {
             for (int j = 0; j < 9; j++) {
                 addSymbol(i, j);
             }
         }
+
     }
 
-    private ServerPlayerList getPlayers() throws IOException, ClassNotFoundException {
-        return gateway.getPlayers();
+    private ArrayList<Player> updatePlayers() throws IOException, ClassNotFoundException {
+        int no = gateway.getPlayerNo();
+        players.add(gateway.getPlayer(no));
+        return players;
     }
 
     @FXML

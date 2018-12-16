@@ -84,6 +84,21 @@ public class GameServerController implements Initializable {
                             }
                             break;
                         }
+
+                        case GET_PLAYER_NO: {
+                            outputToClient.writeObject(Integer.toString(playerList.getSize()));
+                            System.out.println("Get Comment count: "+ playerList.getSize());
+                            outputToClient.flush();
+                            break;
+                        }
+
+                        case GET_PLAYER: {
+                            int p = Integer.parseUnsignedInt( (String) inputFromClient.readObject());
+                            outputToClient.writeObject(playerList.getPlayer(p));
+                            outputToClient.flush();
+                            break;
+                        }
+
                         case SEND_COMMENT: {
                             String comment = (String) inputFromClient.readObject();
                             System.out.println("comment: " +comment);
@@ -103,10 +118,6 @@ public class GameServerController implements Initializable {
                             outputToClient.flush();
                         }
 
-                        case GET_PLAYERS: {
-                            outputToClient.writeObject(playerList);
-                            outputToClient.flush();
-                        }
                     }
                 }
             } catch (IOException ex) {

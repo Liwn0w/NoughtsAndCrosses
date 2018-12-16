@@ -1,12 +1,10 @@
 package Model;
 
-import Server.ServerPlayerList;
-import javafx.application.Platform;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 
 import java.io.*;
 import java.net.Socket;
-import java.util.ArrayList;
 
 import static Server.ChatConstants.*;
 
@@ -18,6 +16,7 @@ public class Gateway {
     //private BufferedReader inputFromServer;
     private static Gateway instance;
     private TextArea textArea;
+    private Label player2;
 
     public Gateway() {
         try {
@@ -42,6 +41,8 @@ public class Gateway {
     public void setTextArea(TextArea textArea) {
         this.textArea = textArea;
     }
+
+    public void setPlayer2(Label player2) {this.player2 = player2;}
 
     // Start the chat by sending in the user's handle.
     public void sendUsername(String username) throws IOException {
@@ -76,10 +77,17 @@ public class Gateway {
         return comment;
     }
 
-    public ServerPlayerList getPlayers() throws IOException, ClassNotFoundException {
-        outputToServer.writeObject(Integer.toString(GET_PLAYERS));
-        ServerPlayerList players = (ServerPlayerList) inputFromServer.readObject();
-        return players;
+    public int getPlayerNo() throws IOException, ClassNotFoundException {
+        outputToServer.writeObject(Integer.toString(GET_PLAYER_NO));
+        outputToServer.flush();
+        return Integer.parseUnsignedInt((String) inputFromServer.readObject());
+    }
+
+    public Player getPlayer(int n) throws IOException, ClassNotFoundException {
+        outputToServer.writeObject(Integer.toString(GET_PLAYER));
+        outputToServer.writeObject(Integer.toString(n-1));
+        outputToServer.flush();
+        return (Player) inputFromServer.readObject();
     }
 
     public static Gateway getInstance() {
@@ -90,6 +98,10 @@ public class Gateway {
 
     public TextArea getTextArea() {
         return textArea;
+    }
+
+    public Label getPlayer2() {
+        return player2;
     }
 
     public static void deleteInstance() {

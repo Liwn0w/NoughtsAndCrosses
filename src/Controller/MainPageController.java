@@ -1,6 +1,5 @@
 package Controller;
 
-import Model.Game;
 import Model.Gateway;
 import Model.Player;
 import Server.ChatConstants;
@@ -10,12 +9,10 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -61,7 +58,9 @@ public class MainPageController implements Initializable {
     class TranscriptCheck implements Runnable, ChatConstants {
         private Gateway gateway; // Gateway to the server
         private TextArea textArea; // Where to display comments
+        private Label player2;
         private int N; // How many comments we have read
+        private boolean gameStarted;
 
         /**
          * Construct a thread
@@ -69,7 +68,9 @@ public class MainPageController implements Initializable {
         public TranscriptCheck(Gateway gateway) {
             this.gateway = gateway;
             this.textArea = gateway.getTextArea();
+            this.player2 = gateway.getPlayer2();
             this.N = 0;
+            gameStarted = false;
         }
 
         /**
@@ -78,6 +79,14 @@ public class MainPageController implements Initializable {
         public void run() {
             while (true) {
                 try {
+                    //Change later when there are many players -
+                    //to check that every one has a partner, e.g. partner %2 is 0
+                    int playerNo = gateway.getPlayerNo();
+                    if(playerNo>=2 && playerNo%2==0 && !gameStarted) {
+                        Player secondPlayer = gateway.getPlayer(playerNo);
+                        Platform.runLater(()-> player2.setText(secondPlayer.getUsername()));
+                        gameStarted = true;
+                    }
                     if (gateway.getCommentCount() > N) {
                         String newComment = gateway.getComment(N);
                         Platform.runLater(() -> textArea.appendText(newComment + "\n"));

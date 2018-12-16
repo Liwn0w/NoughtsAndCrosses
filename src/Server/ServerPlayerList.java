@@ -20,5 +20,8 @@ public class ServerPlayerList implements Serializable {
         return playerList;
     }
 
+    public int getSize() { return playerList.size();}
+
+    public Player getPlayer(int p) { return playerList.get(p);}
 
 }
