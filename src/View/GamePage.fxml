@@ -59,11 +59,11 @@
                   <Button mnemonicParsing="false" text="NEW GAME" prefWidth="150.0" maxWidth="150.0" />
                   <Button mnemonicParsing="false" text="EXIT" prefWidth="150.0" maxWidth="150.0" />
                   <Button mnemonicParsing="false" text="HELP?" prefWidth="150.0" maxWidth="150.0" />
-                  <TextArea prefHeight="300.0" prefWidth="150.0" />
+                  <TextArea fx:id="chatArea" prefHeight="300.0" prefWidth="150.0" />
                   <HBox prefHeight="100.0" prefWidth="200.0">
                      <children>
-                        <TextField maxHeight="40.0" prefHeight="40.0"/>
-                        <Button mnemonicParsing="false" text="SEND" prefHeight="30.0" maxHeight="30.0" />
+                        <TextField fx:id="chatField" maxHeight="40.0" prefHeight="40.0"/>
+                        <Button fx:id="chatButton" mnemonicParsing="false" text="SEND" prefHeight="30.0" maxHeight="30.0" />
                      </children>
                   </HBox>
                </children></VBox>

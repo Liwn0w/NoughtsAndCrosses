@@ -1,68 +1,97 @@
 package Model;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import Server.ServerPlayerList;
+import javafx.application.Platform;
+import javafx.scene.control.TextArea;
+
+import java.io.*;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+
+import static Server.ChatConstants.*;
 
 public class Gateway {
-    private ObjectInputStream objectsFromServer;
-    private ObjectOutputStream objectsToServer;
+    //private ObjectInputStream objectsFromServer;
+    //private ObjectOutputStream objectsToServer;
+
+    private PrintWriter outputToServer;
+    private BufferedReader inputFromServer;
     private static Gateway instance;
-    private Player currentPlayer;
-    private ArrayList<Player> players;
+    private TextArea textArea;
 
     public Gateway() {
-         players = new ArrayList<>();
         try {
-            Socket socket = new Socket("localhost", 4321);
-            System.out.println("Connected to server");
+            Socket socket = new Socket("localhost", 8000);
+
+            // Create an output stream to send data to the server
+            outputToServer = new PrintWriter(socket.getOutputStream());
+
+            // Create an input stream to read data from the server
+            inputFromServer = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+
+            /*System.out.println("Connected to server");
             objectsToServer = new ObjectOutputStream(socket.getOutputStream());
             System.out.println("outputstream done");
             objectsFromServer = new ObjectInputStream(socket.getInputStream());
-            System.out.println("constructor done");
+            System.out.println("constructor done");*/
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    public void sendPlayer(Player p) throws IOException {
-        objectsToServer.writeObject(p);
-        currentPlayer = p;
-        System.out.println("Player sent to server");
+    public void setTextArea(TextArea textArea) {
+        this.textArea = textArea;
     }
 
-    public int getPlayerListSize() {
-        return players.size();
+    // Start the chat by sending in the user's handle.
+    public void sendUsername(String username) {
+        outputToServer.println(SEND_USERNAME);
+        outputToServer.println(username);
+        outputToServer.flush();
     }
 
-    public ArrayList<Player> getPlayers() throws IOException, ClassNotFoundException {
-        //Player player1 = new Player("lily");
-        while(true) {
-            ServerPlayerList playerList = (ServerPlayerList) objectsFromServer.readObject();
-            if (playerList.getPlayerList().size() < 2) {
-                System.out.println("Waiting for second player...");
-            } else {
-                players.add(playerList.getPlayerList().get(0));
-                players.add(playerList.getPlayerList().get(1));
-                players.get(0).setType('X');
-                players.get(1).setType('O');
-                System.out.println(players.get(0).getUsername() + " is " + players.get(0).getType());
-                System.out.println(players.get(1).getUsername() + " is " + players.get(1).getType());
-                return players;
-            }
+    // Send a new comment to the server.
+    public void sendComment(String comment) {
+        outputToServer.println(SEND_COMMENT);
+        outputToServer.println(comment);
+        outputToServer.flush();
+    }
+
+    // Ask the server to send us a count of how many comments are
+    // currently in the transcript.
+    public int getCommentCount() {
+        outputToServer.println(GET_COMMENT_COUNT);
+        outputToServer.flush();
+        int count = 0;
+        try {
+            count = Integer.parseInt(inputFromServer.readLine());
+        } catch (IOException ex) {
+            ex.printStackTrace();
         }
+        return count;
+    }
+
+    // Fetch comment n of the transcript from the server.
+    public String getComment(int n) {
+        outputToServer.println(GET_COMMENT);
+        outputToServer.println(n);
+        outputToServer.flush();
+        String comment = "";
+        try {
+            comment = inputFromServer.readLine();
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+        return comment;
     }
     public static Gateway getInstance() {
         if(instance==null) instance = new Gateway();
         return instance;
     }
 
-    public Player getCurrentPlayer() {
-        return currentPlayer;
+
+    public TextArea getTextArea() {
+        return textArea;
     }
 
     public static void deleteInstance() {
