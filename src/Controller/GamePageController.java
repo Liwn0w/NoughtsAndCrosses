@@ -77,6 +77,9 @@ public class GamePageController {
 
     private ArrayList<Player> updatePlayers() throws IOException, ClassNotFoundException {
         int no = gateway.getPlayerNo();
+        if(players.size()==0 && no>=2) {
+            players.add(gateway.getPlayer(no-1));
+        }
         players.add(gateway.getPlayer(no));
         return players;
     }
