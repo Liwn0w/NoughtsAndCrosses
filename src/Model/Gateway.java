@@ -26,9 +26,11 @@ public class Gateway {
     private Label player2;
     private GridPane gameGrid;
     private Player currentPlayer;
+    private boolean isFirstSymbolSent;
 
     public Gateway() {
         try {
+            isFirstSymbolSent = false;
             Socket socket = new Socket("localhost", 8000);
 
             // Create an output stream to send data to the server
@@ -45,6 +47,10 @@ public class Gateway {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public boolean isFirstSymbolSent() {
+        return isFirstSymbolSent;
     }
 
     public void setTextArea(TextArea textArea) {
@@ -75,6 +81,7 @@ public class Gateway {
         outputToServer.writeObject(Integer.toString(SEND_SYMBOL));
         outputToServer.writeObject(s);
         outputToServer.flush();
+        isFirstSymbolSent = true;
     }
 
     // Ask the server to send us a count of how many comments are
@@ -97,9 +104,10 @@ public class Gateway {
     }
 
     public Symbol getLatestSymbol() throws IOException, ClassNotFoundException {
+        Symbol s = null;
         outputToServer.writeObject(Integer.toString(GET_SYMBOL));
         outputToServer.flush();
-        Symbol s = (Symbol) inputFromServer.readObject();
+        s = (Symbol) inputFromServer.readObject();
         return s;
     }
 
@@ -153,19 +161,6 @@ public class Gateway {
     }
 
 
-    public Node getNodeByRowColumnIndex (final int row, final int column, GridPane gridPane) {
-        Node result = null;
-        ObservableList<Node> childrens = gridPane.getChildren();
-
-        for (Node node : childrens) {
-            if(gridPane.getRowIndex(node) == row && gridPane.getColumnIndex(node) == column) {
-                result = node;
-                break;
-            }
-        }
-
-        return result;
-    }
 
 
 }

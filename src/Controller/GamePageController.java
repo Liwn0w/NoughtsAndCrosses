@@ -1,5 +1,6 @@
 package Controller;
 
+import Model.Game;
 import Model.Gateway;
 import Model.Player;
 import Model.Symbol;
@@ -34,9 +35,11 @@ public class GamePageController {
 
     private Gateway gateway;
     private ArrayList<Player> players;
+    private Game game;
 
     public void initialize() {
         gateway = Gateway.getInstance();
+        game = Game.getInstance();
         gateway.setTextArea(chatArea);
         gateway.setPlayer2(player2);
         gateway.setGameGrid(gameGrid);
@@ -79,20 +82,29 @@ public class GamePageController {
     public void initializeGrid(int i, int j) {
         StackPane pane = new StackPane();
         pane.setOnMouseClicked(e -> {
-            Symbol s = new Symbol(gateway.getCurrentPlayer().getType(),i,j);
-            Label l = new Label();
-            l.setText(""+s.getVal());
-            l.setStyle(" -fx-font-size: 30");
-            l.setTextAlignment(CENTER);
-            pane.getChildren().add(l);
-            pane.setAlignment(l, Pos.CENTER);
             try {
-                gateway.sendSymbol(s);
+                if(!gateway.isFirstSymbolSent() || gateway.getLatestSymbol().getVal()!=gateway.getCurrentPlayer().getType()) {
+                    Symbol s = new Symbol(gateway.getCurrentPlayer().getType(),i,j);
+                    Label l = new Label();
+                    l.setText(""+s.getVal());
+                    l.setStyle(" -fx-font-size: 30");
+                    l.setTextAlignment(CENTER);
+                    pane.getChildren().add(l);
+                    pane.setAlignment(l, Pos.CENTER);
+                    try {
+                        gateway.sendSymbol(s);
+                    } catch (IOException e1) {
+                        e1.printStackTrace();
+                    }
+                    l.setTextFill(Color.color(1,1,1));
+                    game.addSymbol(s);
+                    System.out.printf("Mouse clicked cell [%d, %d]%n", s.getColIndex(), s.getRowIndex());
+                }
             } catch (IOException e1) {
                 e1.printStackTrace();
+            } catch (ClassNotFoundException e1) {
+                e1.printStackTrace();
             }
-            l.setTextFill(Color.color(1,1,1));
-            System.out.printf("Mouse clicked cell [%d, %d]%n", s.getColIndex(), s.getRowIndex());
         });
         gameGrid.add(pane,i, j);
     }

@@ -1,5 +1,6 @@
 package Controller;
 
+import Model.Game;
 import Model.Gateway;
 import Model.Player;
 import Model.Symbol;
@@ -70,6 +71,7 @@ public class MainPageController implements Initializable {
         private int N; // How many comments we have read
         private int S; // how many symbols we have send
         private boolean gameStarted;
+        private Symbol lastSymbol; //used to check same symbol can only be added once, then switch
 
         /**
          * Construct a thread
@@ -101,8 +103,11 @@ public class MainPageController implements Initializable {
                         if( gameStarted && gateway.getSymbolCount()> S)
                         {
                             Symbol s = gateway.getLatestSymbol();
-                            Platform.runLater(()-> addSymbol(s,gameGrid));
-                            S++;
+                            if(lastSymbol == null || s.getVal()!=lastSymbol.getVal()) {
+                                Platform.runLater(() -> addSymbol(s, gameGrid));
+                                lastSymbol = s;
+                                S++;
+                            } else System.out.println("Not switching players");
                         }
                     } catch (IOException e) {
                         e.printStackTrace();
@@ -144,6 +149,7 @@ public class MainPageController implements Initializable {
         StackPane pane = new StackPane();
         pane.getChildren().add(l);
         pane.setAlignment(l, Pos.CENTER);
+        Game.getInstance().addSymbol(s);
         g.add(pane,s.getColIndex(),s.getRowIndex());
     }
 }

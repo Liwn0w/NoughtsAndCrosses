@@ -11,17 +11,19 @@ public class Game {
     private Player winner;
     //later feature? Change to actual time and not just int
     private int time;
+    private static Game instance;
 
-    Socket socket;
+    public Game() {
 
-    public Game() throws IOException {
-        System.out.println("Player ready");
-        socket = new Socket("localhost", 4321);
-        System.out.println("Game connected to server");
     }
 
-    public void start(Player p) throws IOException, ClassNotFoundException {
+    public void addSymbol(Symbol s) {
 
+    }
+
+    public static Game getInstance() {
+        if(instance== null) instance = new Game();
+        return instance;
     }
 
 
