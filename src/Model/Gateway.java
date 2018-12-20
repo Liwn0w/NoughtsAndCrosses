@@ -1,12 +1,19 @@
 package Model;
 
+import javafx.collections.ObservableList;
+import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.StackPane;
+import javafx.scene.paint.Color;
 
 import java.io.*;
 import java.net.Socket;
 
 import static Server.ChatConstants.*;
+import static javafx.scene.text.TextAlignment.CENTER;
 
 public class Gateway {
     private ObjectInputStream inputFromServer;
@@ -17,6 +24,8 @@ public class Gateway {
     private static Gateway instance;
     private TextArea textArea;
     private Label player2;
+    private GridPane gameGrid;
+    private Player currentPlayer;
 
     public Gateway() {
         try {
@@ -44,10 +53,14 @@ public class Gateway {
 
     public void setPlayer2(Label player2) {this.player2 = player2;}
 
+    public void setGameGrid(GridPane g) {gameGrid = g;}
+
     // Start the chat by sending in the user's handle.
     public void sendUsername(String username) throws IOException {
         outputToServer.writeObject(Integer.toString(SEND_USERNAME));
-        outputToServer.writeObject(new Player(username));
+        Player currentPlayer = new Player(username);
+        this.currentPlayer = currentPlayer;
+        outputToServer.writeObject(currentPlayer);
         outputToServer.flush();
     }
 
@@ -55,6 +68,12 @@ public class Gateway {
     public void sendComment(String comment) throws IOException {
         outputToServer.writeObject(Integer.toString(SEND_COMMENT));
         outputToServer.writeObject(comment);
+        outputToServer.flush();
+    }
+
+    public void sendSymbol(Symbol s) throws IOException {
+        outputToServer.writeObject(Integer.toString(SEND_SYMBOL));
+        outputToServer.writeObject(s);
         outputToServer.flush();
     }
 
@@ -77,6 +96,13 @@ public class Gateway {
         return comment;
     }
 
+    public Symbol getLatestSymbol() throws IOException, ClassNotFoundException {
+        outputToServer.writeObject(Integer.toString(GET_SYMBOL));
+        outputToServer.flush();
+        Symbol s = (Symbol) inputFromServer.readObject();
+        return s;
+    }
+
     public int getPlayerNo() throws IOException, ClassNotFoundException {
         outputToServer.writeObject(Integer.toString(GET_PLAYER_NO));
         outputToServer.flush();
@@ -87,7 +113,10 @@ public class Gateway {
         outputToServer.writeObject(Integer.toString(GET_PLAYER));
         outputToServer.writeObject(Integer.toString(n-1));
         outputToServer.flush();
-        return (Player) inputFromServer.readObject();
+        Player serverPlayer = (Player) inputFromServer.readObject();
+        /*Error if two players have same username*/
+        if(serverPlayer.getUsername().equals(currentPlayer.getUsername())) currentPlayer.setType(serverPlayer.getType());
+        return serverPlayer;
     }
 
     public static Gateway getInstance() {
@@ -95,6 +124,9 @@ public class Gateway {
         return instance;
     }
 
+    public Player getCurrentPlayer() {
+        return currentPlayer;
+    }
 
     public TextArea getTextArea() {
         return textArea;
@@ -104,7 +136,36 @@ public class Gateway {
         return player2;
     }
 
+    public GridPane getGameGrid() {
+        return gameGrid;
+    }
+
     public static void deleteInstance() {
         instance = null;
     }
+
+    public int getSymbolCount() throws IOException, ClassNotFoundException {
+        outputToServer.writeObject(Integer.toString(GET_SYMBOL_COUNT));
+        outputToServer.flush();
+        int symbolCount = 0;
+        symbolCount = Integer.parseUnsignedInt((String) inputFromServer.readObject());
+        return symbolCount;
+    }
+
+
+    public Node getNodeByRowColumnIndex (final int row, final int column, GridPane gridPane) {
+        Node result = null;
+        ObservableList<Node> childrens = gridPane.getChildren();
+
+        for (Node node : childrens) {
+            if(gridPane.getRowIndex(node) == row && gridPane.getColumnIndex(node) == column) {
+                result = node;
+                break;
+            }
+        }
+
+        return result;
+    }
+
+
 }

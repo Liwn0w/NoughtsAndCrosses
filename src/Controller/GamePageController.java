@@ -39,6 +39,7 @@ public class GamePageController {
         gateway = Gateway.getInstance();
         gateway.setTextArea(chatArea);
         gateway.setPlayer2(player2);
+        gateway.setGameGrid(gameGrid);
         players = new ArrayList<>();
         try {
             players = updatePlayers();
@@ -69,10 +70,31 @@ public class GamePageController {
 
         for (int i = 0 ; i < 9 ; i++) {
             for (int j = 0; j < 9; j++) {
-                addSymbol(i, j);
+                initializeGrid(i,j);
             }
         }
 
+    }
+
+    public void initializeGrid(int i, int j) {
+        StackPane pane = new StackPane();
+        pane.setOnMouseClicked(e -> {
+            Symbol s = new Symbol(gateway.getCurrentPlayer().getType(),i,j);
+            Label l = new Label();
+            l.setText(""+s.getVal());
+            l.setStyle(" -fx-font-size: 30");
+            l.setTextAlignment(CENTER);
+            pane.getChildren().add(l);
+            pane.setAlignment(l, Pos.CENTER);
+            try {
+                gateway.sendSymbol(s);
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
+            l.setTextFill(Color.color(1,1,1));
+            System.out.printf("Mouse clicked cell [%d, %d]%n", s.getColIndex(), s.getRowIndex());
+        });
+        gameGrid.add(pane,i, j);
     }
 
     private ArrayList<Player> updatePlayers() throws IOException, ClassNotFoundException {
@@ -89,26 +111,7 @@ public class GamePageController {
         String text = chatField.getText();
         gateway.sendComment(text);
         chatField.setText("");
-    }
 
-    private void addSymbol(int colIndex, int rowIndex) {
-        StackPane pane = new StackPane();
-        pane.setOnMouseClicked(e -> {
-            Label l = new Label();
-            //change to char of user
-            //l.setText(""+gateway.getCurrentPlayer().getType());
-            l.setText("X");
-            l.setStyle(" -fx-font-size: 30");
-            l.setTextAlignment(CENTER);
-            pane.getChildren().add(l);
-            pane.setAlignment(l, Pos.CENTER);
-            l.setTextFill(Color.color(1,1,1));
-            Symbol s = new Symbol('O',colIndex,rowIndex);
-            //ServerSymbolList.getInstance().addSymbol(s);
-            System.out.printf("Mouse clicked cell [%d, %d]%n", colIndex, rowIndex);
-        });
-        gameGrid.add(pane, colIndex, rowIndex);
     }
-
 
 }

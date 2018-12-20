@@ -7,4 +7,7 @@ public interface ChatConstants {
         public static int SEND_COMMENT = 4;
         public static int GET_COMMENT_COUNT = 5;
         public static int GET_COMMENT = 6;
+        public static int SEND_SYMBOL = 7;
+        public static int GET_SYMBOL = 8;
+        public static int GET_SYMBOL_COUNT = 9;
 }

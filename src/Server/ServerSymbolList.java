@@ -17,9 +17,8 @@ public class ServerSymbolList implements Serializable {
         symbolList.add(s);
     }
 
-    public List<Symbol> getSymbolList() {
-        return symbolList;
-    }
+    public Symbol getSymbol(int n) {return symbolList.get(n);}
 
+    public int getSize() {return symbolList.size();}
 
 }
