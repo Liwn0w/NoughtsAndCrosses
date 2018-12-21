@@ -144,7 +144,7 @@ public class MainPageController implements Initializable {
         l.setStyle(" -fx-font-size: 30");
         l.setTextAlignment(CENTER);
         l.setTextFill(Color.color(1,1,1));
-        System.out.printf("Server added symbol at [%d, %d]%n", s.getColIndex(), s.getRowIndex());
+        //System.out.printf("Server added symbol at [%d, %d]%n", s.getColIndex(), s.getRowIndex());
         //gameGrid.getChildren().remove(getNodeByRowColumnIndex(s.getRowIndex(),s.getColIndex(),g));
         StackPane pane = new StackPane();
         pane.getChildren().add(l);

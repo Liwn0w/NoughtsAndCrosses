@@ -4,6 +4,7 @@ import Model.Game;
 import Model.Gateway;
 import Model.Player;
 import Model.Symbol;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -83,7 +84,7 @@ public class GamePageController {
         StackPane pane = new StackPane();
         pane.setOnMouseClicked(e -> {
             try {
-                if(!gateway.isFirstSymbolSent() || gateway.getLatestSymbol().getVal()!=gateway.getCurrentPlayer().getType()) {
+                if(!gateway.isFirstSymbolSent() || pane.getChildren().size()==0 && gateway.getLatestSymbol().getVal()!=gateway.getCurrentPlayer().getType()) {
                     Symbol s = new Symbol(gateway.getCurrentPlayer().getType(),i,j);
                     Label l = new Label();
                     l.setText(""+s.getVal());
@@ -98,7 +99,7 @@ public class GamePageController {
                     }
                     l.setTextFill(Color.color(1,1,1));
                     game.addSymbol(s);
-                    System.out.printf("Mouse clicked cell [%d, %d]%n", s.getColIndex(), s.getRowIndex());
+                    //System.out.printf("Mouse clicked cell [%d, %d]%n", s.getColIndex(), s.getRowIndex());
                 }
             } catch (IOException e1) {
                 e1.printStackTrace();
