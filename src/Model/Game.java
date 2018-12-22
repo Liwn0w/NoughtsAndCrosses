@@ -22,8 +22,9 @@ public class Game {
 
     public void addSymbol(Symbol s) {
         board[s.getRowIndex()][s.getColIndex()] = s.getVal();
-        System.out.println("Winboard: ");
         checkWinBoard(s);
+        /*
+        System.out.println("Winboard: ");
         for(char[] row : winBoard) {
             printRow(row);
         }
@@ -31,7 +32,7 @@ public class Game {
         System.out.println("MainBoard: ");
         for(char[] row : board) {
             printRow(row);
-        }
+        }*/
     }
 
     public static Game getInstance() {

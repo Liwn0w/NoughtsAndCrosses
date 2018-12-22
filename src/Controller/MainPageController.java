@@ -11,10 +11,7 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
@@ -29,7 +26,7 @@ import static javafx.scene.text.TextAlignment.CENTER;
 public class MainPageController implements Initializable {
 
     @FXML
-    Button startButton;
+    Button startButton, help;
     @FXML
     TextField username;
     boolean usernameIsChanged;
@@ -65,6 +62,25 @@ public class MainPageController implements Initializable {
                 }
             }
         });
+
+        help.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                help.setOnAction(new EventHandler<ActionEvent>() {
+                    @Override
+                    public void handle(ActionEvent event) {
+                        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                        alert.setTitle("HELP");
+                        alert.setHeaderText("HOW TO PLAY:");
+                        alert.setContentText("This is a 9 x 9 game of Noughts and Crosses. \n" +
+                                "Each 3 x 3 is a game of Noughts and Crosses, and you have to win" +
+                                " 3 games in a line to win the entire game.");
+
+                        alert.showAndWait();
+                    }
+                });
+            }
+        });
     }
 
     class TranscriptCheck implements Runnable, ChatConstants {
@@ -76,6 +92,7 @@ public class MainPageController implements Initializable {
         private int S; // how many symbols we have send
         private boolean gameStarted;
         private Symbol lastSymbol; //used to check same symbol can only be added once, then switch
+        Player secondPlayer;
 
         /**
          * Construct a thread
@@ -99,12 +116,12 @@ public class MainPageController implements Initializable {
                     //Change later when there are many players -
                     //to check that every one has a partner, e.g. partner %2 is 0
                     if(!gameStarted && gateway.getPlayerNo()>=2 && gateway.getPlayerNo()%2==0) {
-                        Player secondPlayer = gateway.getPlayer(gateway.getPlayerNo());
+                        secondPlayer = gateway.getPlayer(gateway.getPlayerNo());
                         Platform.runLater(()-> {
                             if(secondPlayer.getUsername().equals(gateway.getCurrentPlayer().getUsername())) {
                             player2.setText("You: "+secondPlayer.getUsername());
                             } else {
-                                player2.setText("Opponent: "+secondPlayer.getUsername());
+                                player2.setText("Opp: "+secondPlayer.getUsername());
                             }
                         });
                         gameStarted = true;
@@ -114,17 +131,14 @@ public class MainPageController implements Initializable {
                         {
                             Symbol s = gateway.getLatestSymbol();
                             if(lastSymbol == null || s.getVal()!=lastSymbol.getVal()) {
-                                Platform.runLater(() ->{
+                                Platform.runLater(() -> {
                                     addSymbol(s, gameGrid);
-
                                 });
                                 lastSymbol = s;
                                 S++;
                             } else System.out.println("Not switching players");
 
-                            /*if(lastSymbol==null || lastSymbol.getVal()!=gateway.getCurrentPlayer().getType()) {
-                                System.out.println(gateway.getCurrentPlayer().getUsername() +" label green");
-                            }*/
+
                         }
                     } catch (IOException e) {
                         e.printStackTrace();

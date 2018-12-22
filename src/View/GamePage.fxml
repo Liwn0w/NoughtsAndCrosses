@@ -56,9 +56,8 @@
                </children></VBox>
             <VBox alignment="CENTER" prefHeight="500.0" prefWidth="150.0">
                <children>
-                  <Button mnemonicParsing="false" text="NEW GAME" prefWidth="150.0" maxWidth="150.0" />
-                  <Button mnemonicParsing="false" text="EXIT" prefWidth="150.0" maxWidth="150.0" />
-                  <Button mnemonicParsing="false" text="HELP?" prefWidth="150.0" maxWidth="150.0" />
+                  <Button fx:id="exit" mnemonicParsing="false" text="EXIT" prefWidth="150.0" maxWidth="150.0" />
+                  <Button fx:id="help" mnemonicParsing="false" text="HELP?" prefWidth="150.0" maxWidth="150.0" />
                   <TextArea fx:id="chatArea" prefHeight="300.0" prefWidth="150.0" />
                   <HBox prefHeight="100.0" prefWidth="200.0">
                      <children>

@@ -18,7 +18,7 @@
          <children>
             <BorderPane prefHeight="50.0" maxHeight="50.0" prefWidth="500.0">
                <right>
-                  <Button mnemonicParsing="false" text="HELP?" BorderPane.alignment="CENTER" />
+                  <Button fx:id="help" mnemonicParsing="false" text="HELP?" BorderPane.alignment="CENTER" />
                </right></BorderPane>
             <Label text="NOUGHTS AND CROSSES" textFill="#dadada" styleClass="text1"/>
             <ImageView fitHeight="150.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true">

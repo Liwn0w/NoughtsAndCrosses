@@ -27,6 +27,7 @@ public class Gateway {
     private GridPane gameGrid;
     private Player currentPlayer;
     private boolean isFirstSymbolSent;
+    private Player turnToPlay;
 
     public Gateway() {
         try {
@@ -66,6 +67,7 @@ public class Gateway {
         outputToServer.writeObject(Integer.toString(SEND_USERNAME));
         Player currentPlayer = new Player(username);
         this.currentPlayer = currentPlayer;
+        this.turnToPlay = currentPlayer;
         outputToServer.writeObject(currentPlayer);
         outputToServer.flush();
     }
@@ -114,7 +116,7 @@ public class Gateway {
     public int getPlayerNo() throws IOException, ClassNotFoundException {
         outputToServer.writeObject(Integer.toString(GET_PLAYER_NO));
         outputToServer.flush();
-        return Integer.parseUnsignedInt((String) inputFromServer.readObject());
+        return Integer.parseInt((String) inputFromServer.readObject());
     }
 
     public Player getPlayer(int n) throws IOException, ClassNotFoundException {
@@ -156,25 +158,22 @@ public class Gateway {
         outputToServer.writeObject(Integer.toString(GET_SYMBOL_COUNT));
         outputToServer.flush();
         int symbolCount = 0;
-        symbolCount = Integer.parseUnsignedInt((String) inputFromServer.readObject());
+        symbolCount = Integer.parseInt((String) inputFromServer.readObject());
         return symbolCount;
     }
 
     public void sendGameOver() throws IOException {
-        outputToServer.writeObject(Integer.toUnsignedString(SEND_GAMEOVER));
+        outputToServer.writeObject(Integer.toString(SEND_GAMEOVER));
         String winner = "GameOver. The winner is "+ currentPlayer;
         outputToServer.writeObject(winner);
         outputToServer.flush();
     }
 
     public String getGameOver() throws IOException, ClassNotFoundException {
-        outputToServer.writeObject(Integer.toUnsignedString(GET_GAMEOVER));
+        outputToServer.writeObject(Integer.toString(GET_GAMEOVER));
         outputToServer.flush();
         String winner = (String) inputFromServer.readObject();
         return winner;
     }
-
-
-
 
 }

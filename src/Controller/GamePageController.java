@@ -9,14 +9,15 @@ import javafx.collections.ListChangeListener;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.stage.Stage;
 
 
 import java.io.IOException;
@@ -30,7 +31,7 @@ public class GamePageController {
     @FXML
     Label player1,player2;
     @FXML
-    Button chatButton;
+    Button chatButton, exit, newGame, help;
     @FXML
     TextArea chatArea;
     @FXML
@@ -55,6 +56,30 @@ public class GamePageController {
             e.printStackTrace();
         }
 
+        help.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setTitle("HELP");
+                alert.setHeaderText("HOW TO PLAY:");
+                alert.setContentText("This is a 9 x 9 game of Noughts and Crosses. \n" +
+                        "Each 3 x 3 is a game of Noughts and Crosses, and you have to win" +
+                        " 3 games in a line to win the entire game.");
+
+                alert.showAndWait();
+            }
+        });
+
+        exit.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                if(player1.getText().equals(gateway.getCurrentPlayer().getUsername())) {
+                    player1.setText("Gone");
+                } else player2.setText("Gone");
+                System.exit(0);
+            }
+        });
+
         chatButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
@@ -72,10 +97,10 @@ public class GamePageController {
             if(players.size()<2) {
                 player2.setText("Waiting...");
             } else {
-                player2.setText("Opponent: "+players.get(1).getUsername());
+                player2.setText("Opp: "+players.get(1).getUsername());
             }
         } else {
-            player1.setText("Opponent: " + players.get(0).getUsername());
+            player1.setText("Opp: " + players.get(0).getUsername());
         }
         for (int i = 0 ; i < 9 ; i++) {
             for (int j = 0; j < 9; j++) {
@@ -85,14 +110,6 @@ public class GamePageController {
 
     }
 
-    public void markUsersTurn() {
-        gameGrid.getChildren().addListener(new ListChangeListener<Node>() {
-            @Override
-            public void onChanged(Change<? extends Node> c) {
-                System.out.println("Symbol added");
-            }
-        });
-    }
 
     public void initializeGrid(int i, int j) {
         StackPane pane = new StackPane();
@@ -123,6 +140,7 @@ public class GamePageController {
                     }
                     l.setTextFill(Color.color(1,1,1));
                     game.addSymbol(s);
+
                     //System.out.printf("Mouse clicked cell [%d, %d]%n", s.getColIndex(), s.getRowIndex());
                 }
             } catch (IOException e1) {

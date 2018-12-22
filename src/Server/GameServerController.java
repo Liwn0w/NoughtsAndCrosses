@@ -116,8 +116,7 @@ public class GameServerController implements Initializable {
                             break;
                         }
                         case GET_COMMENT_COUNT: {
-                            outputToClient.writeObject(Integer.toString(chat.getSize()));
-                            System.out.println("Get Comment count: "+ chat.getSize());
+                            outputToClient.writeObject(Integer.toUnsignedString(chat.getSize()));
                             outputToClient.flush();
                             break;
                         }
