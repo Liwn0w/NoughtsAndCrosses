@@ -53,6 +53,7 @@ public class GameServerController implements Initializable {
         private Chat chat; // Reference to shared chat
         private Player player;
         private Symbol symbol;
+        private String winner;
         private ServerPlayerList playerList; //reference to shared playerList
         private ServerSymbolList symbolList; //reference to game board, list of positions
 
@@ -83,9 +84,9 @@ public class GameServerController implements Initializable {
                         case SEND_USERNAME: {
                             player = (Player) inputFromClient.readObject();
                             if(playerList.getSize()%2==0) {
-                                player.setType('O');
-                            } else {
                                 player.setType('X');
+                            } else {
+                                player.setType('O');
                             }
                             playerList.addPlayer(player);
 
@@ -138,8 +139,17 @@ public class GameServerController implements Initializable {
                             break;
                         }
                         case GET_SYMBOL_COUNT: {
-                            outputToClient.writeObject(Integer.toString(symbolList.getSize()));
+                            outputToClient.writeObject(Integer.toUnsignedString(symbolList.getSize()));
                             System.out.println("Get Comment count: "+ symbolList.getSize());
+                            outputToClient.flush();
+                            break;
+                        } case SEND_GAMEOVER: {
+                            winner = (String) inputFromClient.readObject();
+                            System.out.println("Game Over. Winner: "+winner);
+                            break;
+                        }case GET_GAMEOVER: {
+                            if(winner==null) outputToClient.writeObject("No winner");
+                            else outputToClient.writeObject(winner);
                             outputToClient.flush();
                             break;
                         }

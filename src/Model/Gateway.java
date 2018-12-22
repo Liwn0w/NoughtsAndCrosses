@@ -160,6 +160,20 @@ public class Gateway {
         return symbolCount;
     }
 
+    public void sendGameOver() throws IOException {
+        outputToServer.writeObject(Integer.toUnsignedString(SEND_GAMEOVER));
+        String winner = "GameOver. The winner is "+ currentPlayer;
+        outputToServer.writeObject(winner);
+        outputToServer.flush();
+    }
+
+    public String getGameOver() throws IOException, ClassNotFoundException {
+        outputToServer.writeObject(Integer.toUnsignedString(GET_GAMEOVER));
+        outputToServer.flush();
+        String winner = (String) inputFromServer.readObject();
+        return winner;
+    }
+
 
 
 

@@ -46,7 +46,7 @@ public class Game {
             if(board[row][0] == val && board[row][1]==val && board[row][2]==val) {
                 return true;
             } else return false;
-        } else if(col<=5) {
+        } else if(col> 2 && col<=5) {
             if(board[row][3] == val && board[row][4]==val && board[row][5]==val) {
                 return true;
             } else return false;
@@ -64,7 +64,7 @@ public class Game {
             if(board[0][col] == val && board[1][col]==val && board[2][col]==val) {
                 return true;
             } else return false;
-        } else if(row<=5) {
+        } else if(row>2 && row<=5) {
             if(board[3][col] == val && board[4][col]==val && board[5][col]==val) {
                 return true;
             } else return false;
@@ -75,14 +75,21 @@ public class Game {
         }
     }
 
+    private boolean checkTiltedWinBoard(Symbol s) {
+        char val = s.getVal();
+        if(winBoard[0][0] == val && winBoard[1][1] == val && winBoard[2][2] == val
+                    || winBoard[0][2] == val && winBoard[1][1] == val && winBoard[2][0] == val) return true;
+        else return false;
+        }
+
     private boolean checkTilted(Symbol s, int row, int col, char[][] board) {
         char val = s.getVal();
         if(row<=2) {
             if(col<=2&& board[0][0] == val && board[1][1] == val && board[2][2] == val
                     || board[0][2] == val && board[1][1] == val && board[2][0] == val) return true;
-            else if (col<=5 && board[0][3] == val && board[1][4] == val && board[2][5] == val
+            else if (col> 2 && col<=5 && board[0][3] == val && board[1][4] == val && board[2][5] == val
                     || board[0][5] == val && board[1][4] == val && board[2][3] == val) return true;
-            else if (col<=8 && board[0][6] == val && board[1][7] == val && board[2][8] == val
+            else if (col > 5 && col<=8 && board[0][6] == val && board[1][7] == val && board[2][8] == val
                     || board[0][8] == val && board[1][7] == val && board[2][6] == val) return true;
             else return false;
         } else if(row>2 && row<=5) {
@@ -137,9 +144,14 @@ public class Game {
                 checkCol(s,0,2, winBoard) ||
                 checkRow(s,0,0, winBoard) ||
                 checkRow(s,1,0, winBoard) ||
-                checkRow(s,2,0, winBoard)){
+                checkRow(s,2,0, winBoard) ||
+                checkTiltedWinBoard(s)){
             //set char in winboard if won.
-            System.out.println("Won the game");
+            try {
+                Gateway.getInstance().sendGameOver();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 

@@ -5,10 +5,12 @@ import Model.Gateway;
 import Model.Player;
 import Model.Symbol;
 import javafx.application.Platform;
+import javafx.collections.ListChangeListener;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
@@ -65,13 +67,16 @@ public class GamePageController {
         });
 
         //Get usernames after chat is successfully implemented
-            player1.setText(players.get(0).getUsername());
+        if(gateway.getCurrentPlayer().getUsername().equals(players.get(0).getUsername())) {
+            player1.setText("You: "+ players.get(0).getUsername());
             if(players.size()<2) {
                 player2.setText("Waiting...");
             } else {
-                player2.setText(players.get(1).getUsername());
+                player2.setText("Opponent: "+players.get(1).getUsername());
             }
-
+        } else {
+            player1.setText("Opponent: " + players.get(0).getUsername());
+        }
         for (int i = 0 ; i < 9 ; i++) {
             for (int j = 0; j < 9; j++) {
                 initializeGrid(i,j);
@@ -80,11 +85,30 @@ public class GamePageController {
 
     }
 
+    public void markUsersTurn() {
+        gameGrid.getChildren().addListener(new ListChangeListener<Node>() {
+            @Override
+            public void onChanged(Change<? extends Node> c) {
+                System.out.println("Symbol added");
+            }
+        });
+    }
+
     public void initializeGrid(int i, int j) {
         StackPane pane = new StackPane();
         pane.setOnMouseClicked(e -> {
             try {
                 if(!gateway.isFirstSymbolSent() || pane.getChildren().size()==0 && gateway.getLatestSymbol().getVal()!=gateway.getCurrentPlayer().getType()) {
+                    if(!gateway.getGameOver().equals("No winner")) {
+                        gameGrid.getChildren().clear();
+                        Label end = new Label();
+                        end.setStyle(" -fx-font-size: 30");
+                        end.setTextAlignment(CENTER);
+                        end.setTextFill(Color.color(1,1,1));
+                        end.setText(gateway.getGameOver());
+                        gameGrid.add(end,3,2,3,3);
+                    }
+
                     Symbol s = new Symbol(gateway.getCurrentPlayer().getType(),i,j);
                     Label l = new Label();
                     l.setText(""+s.getVal());

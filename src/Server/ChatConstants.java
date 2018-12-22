@@ -10,4 +10,6 @@ public interface ChatConstants {
         public static int SEND_SYMBOL = 7;
         public static int GET_SYMBOL = 8;
         public static int GET_SYMBOL_COUNT = 9;
+        public static int SEND_GAMEOVER = 10;
+        public static int GET_GAMEOVER = 11;
 }

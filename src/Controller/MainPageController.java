@@ -15,6 +15,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
@@ -31,18 +32,21 @@ public class MainPageController implements Initializable {
     Button startButton;
     @FXML
     TextField username;
+    boolean usernameIsChanged;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         Gateway gateway = Gateway.getInstance();
         PageChanger p = new PageChanger();
+        usernameIsChanged = false;
         //insert an onlick that empties the username textfield, once clicked on it
 
-        username.setOnAction(new EventHandler<ActionEvent>() {
+        username.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
-            public void handle(ActionEvent event) {
-                if (username.getText().equals("Insert username")) {
-                    username.setText("");
+            public void handle(MouseEvent event) {
+                if (!usernameIsChanged) {
+                    username.clear();
+                    usernameIsChanged=true;
                 }
             }
         });
@@ -96,18 +100,31 @@ public class MainPageController implements Initializable {
                     //to check that every one has a partner, e.g. partner %2 is 0
                     if(!gameStarted && gateway.getPlayerNo()>=2 && gateway.getPlayerNo()%2==0) {
                         Player secondPlayer = gateway.getPlayer(gateway.getPlayerNo());
-                        Platform.runLater(()-> player2.setText(secondPlayer.getUsername()));
+                        Platform.runLater(()-> {
+                            if(secondPlayer.getUsername().equals(gateway.getCurrentPlayer().getUsername())) {
+                            player2.setText("You: "+secondPlayer.getUsername());
+                            } else {
+                                player2.setText("Opponent: "+secondPlayer.getUsername());
+                            }
+                        });
                         gameStarted = true;
                     }
                     try {
-                        if( gameStarted && gateway.getSymbolCount()> S)
+                        if(gameStarted && gateway.getSymbolCount()> S)
                         {
                             Symbol s = gateway.getLatestSymbol();
                             if(lastSymbol == null || s.getVal()!=lastSymbol.getVal()) {
-                                Platform.runLater(() -> addSymbol(s, gameGrid));
+                                Platform.runLater(() ->{
+                                    addSymbol(s, gameGrid);
+
+                                });
                                 lastSymbol = s;
                                 S++;
                             } else System.out.println("Not switching players");
+
+                            /*if(lastSymbol==null || lastSymbol.getVal()!=gateway.getCurrentPlayer().getType()) {
+                                System.out.println(gateway.getCurrentPlayer().getUsername() +" label green");
+                            }*/
                         }
                     } catch (IOException e) {
                         e.printStackTrace();
@@ -117,12 +134,7 @@ public class MainPageController implements Initializable {
 
                     if (gateway.getCommentCount() > N) {
                         String newComment = gateway.getComment(N);
-                        Platform.runLater(() -> {
-                            textArea.appendText(newComment + "\n");
-                            /*Error occurs here, needs a trigger for when a new symbol should
-                            * be added*/
-
-                        });
+                        Platform.runLater(() -> textArea.appendText(newComment + "\n"));
                         N++;
                     } else {
                         try {
